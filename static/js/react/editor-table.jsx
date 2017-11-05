@@ -144,10 +144,18 @@ class Menu extends React.Component {
         this.resetSelection = this.resetSelection.bind(this);
         this.resetTable = this.resetTable.bind(this);
         this.save = this.save.bind(this);
+        this.goBack = this.goBack.bind(this);
     }
 
     resetSelection() {
         selectorClicked = false;
+    }
+
+    goBack () {
+        ReactDOM.render(
+            <Game />,
+            document.getElementById('root')
+        )
     }
 
     handleChange (key) {
@@ -162,9 +170,7 @@ class Menu extends React.Component {
     save () {
         let info = ed.editorTable
         info.push(this.state)
-        console.log(info)
         let jsonString = JSON.stringify(info)
-        console.log(jsonString)
         let blob = new Blob([jsonString], {
             type: "text/plain;charset=utf-8"
            })
@@ -334,7 +340,7 @@ class Menu extends React.Component {
                             <button className="btn btn-default but" onClick={this.save} >Guardar</button>
                             <button className="btn btn-default but" onClick={this.resetTable} >Reiniciar</button>
                             <button className="btn btn-default but" onClick={this.resetSelection} >Cancelar Seleccion</button>
-                            <button className="btn btn-default but">Salir</button> 
+                            <button className="btn btn-default but" onClick={this.goBack}>Salir</button> 
                         </div>
                     </div>
                 </div>
@@ -373,8 +379,3 @@ class Editor extends React.Component {
         );
     }
 }
-ReactDOM.render (
-    <Editor />,
-    document.getElementById('root')
-
-);
