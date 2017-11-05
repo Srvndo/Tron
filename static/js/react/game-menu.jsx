@@ -6,7 +6,7 @@ class Game extends React.Component {
     }
 
     startGame () {
-
+        window.location = "game.html"
     }
 
     startEdithor () {
