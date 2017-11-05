@@ -4,10 +4,21 @@ var row=15;
 var cuad=32;
 //creando elementos para array
 var matriz= new Array(row);
- for(var i=0; i<matriz.length;i++)
- {
-   matriz[i]=new Array(col);
- }
+function getCookie(cname) {
+  var name = cname + "=";
+  var ca = document.cookie.split(';');
+  for(var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+      }
+  }
+  return "";
+}
+
  
 var game = new Phaser.Game(col*cuad,row*cuad, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
@@ -28,7 +39,9 @@ function preload() {
   game.load.image('BoostUp','static/sprites/Boost1.png');
   game.load.image('BoostSlow','static/sprites/Boost3.png');
   game.load.image('DeleteStella','static/sprites/DeleteStella.png');
-
+  //escore
+  
+    
 }
 //vars
 var YellowBike;
@@ -40,10 +53,13 @@ var cursors2;
 var Base;
 var currentVelBlue;
 var currentVelYellow;
-//Bonus   
+var lifeBlue;
+var lifeYellow;
+var scoreText;//Bonus   
 var BoostUp;
 var BoostSlow;
 var DeleteStella;
+var GameStop;
 //cronos
 var BaseMovtime;
 var BoostUptime;
@@ -64,14 +80,15 @@ var BoostTime=3000;
 
 //FUNCTION CREATE
 function create() {
+
+  
 //background
 game.add.sprite(0,0,'background');
 
-// matriz
+//escore
+lifeBlue=3;
+lifeYellow=3;
 
-createEmptyArray();
-
-//physics
 
 game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -108,7 +125,9 @@ Blue.enableBody = true;
 Base= game.add.group();
 game.physics.arcade.enable(Base);
 Base.enableBody= true;
-createBlockNomobile();
+createMatriz();
+createBlockNoMobile();
+
 
 
 //Initial vel
@@ -139,11 +158,13 @@ CreateBaseMov();
 CreateBoostUp();
 CreateBoostSlow();
 CreateDeleteEstella();
-
+scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '4px', fill: '#fff' });
+scoreText.text= "Blue = "+ lifeBlue + " Yellow= "+lifeYellow;
 }
 
 //UPDATE
 function update() {
+  
 //Blue Bike Stellas
 game.physics.arcade.collide(BlueBike, Blue, crashBlue, null, this);
 game.physics.arcade.collide(BlueBike, Yellow, crashBlue, null, this);
@@ -171,12 +192,16 @@ game.physics.arcade.overlap(BlueBike, BoostSlow,BoostSlowBlue, null, this);
 game.physics.arcade.overlap(YellowBike, BoostSlow,BoostSlowYellow, null, this);
 
 //Stelas
+if(!GameStop){
 StellaBlue();
 StellaYellow();
-
 //Controls
 ControlBlueBike();
 ControlYellowBike();
+}
+
+
+
 }
 
 function BoostUpYellow(){
@@ -354,8 +379,10 @@ else if(cursors2.right.isDown&&BlueBike.body.velocity.x==0)
 
 }
 function crashBlue(Bluebike, blue){
+  lifeBlue;
 Restart();}
 function crashYellow(YellowBike, yellow){
+  lifeYellow--;
 Restart();}
 
 function cuadrante(x,y){
@@ -368,21 +395,45 @@ function createEmptyArray(){
     matriz[i][j]=0;
   
    
-  mostrar(matriz);
+  //mostrar(matriz);
 }
 
-function createBlockNomobile(){
-var x,y=0;
-var b;
-for (var i=0;i<col;i++){
-x=0;
-b=Base.create(y*cuad,x*cuad,'Base');
-b.body.immovable= true;
-matriz[x][y++]=1;
-}
+function createMatriz(){
+    var json= getCookie("map");
+    if(json!=""){
+        json= JSON.parse( getCookie("map"));
+        for (var i = 0; i < row; i++) 
+              matriz[i]= json[i];             
+        
+              
+    }
+    else
+        for (var i = 0; i < matriz.length; i++) {
+            matriz[i]= new Array(col);
+            for (var j = 0; j < matriz[i].length; j++) {
+              matriz[i][j]=0;
+              
+            }
+        }
+    console.log(matriz);
 
 
 }
+
+function createBlockNoMobile(){
+      var b;
+      for (var i = 0; i < matriz.length; i++) 
+        for (var j = 0; j < matriz[i].length; j++) 
+            if (matriz[i][j]==1) {
+              b=Base.create(j*cuad,i*cuad,'Base');
+              b.body.immovable= true;
+              
+            }
+
+          
+        
+}
+
 
 function CreateBaseMov(){
 BaseMovtime= Math.floor(Math.random() * (15000 - 3000 + 1)) + 3000;
@@ -463,17 +514,33 @@ console.log(valor);
 function Restart(){
 KillBlue();
 KillYellow();
-
+scoreText.text= "Blue = "+ lifeBlue + " Yellow= "+lifeYellow;
 //BlueBike
 BlueBike.body.velocity.y= 0;
 BlueBike.body.velocity.x= 0;
 BlueBike.body.x= InitialBlueBikeX;
 BlueBike.body.y= InitialBlueBikeY;
-
 //YellowBike
 YellowBike.body.velocity.y= 0;
 YellowBike.body.velocity.x= 0;
 YellowBike.body.x= InitialYellowBikeX;
 YellowBike.body.y= InitialYellowBikeY;
+
+if (!lifeBlue||!lifeYellow){
+  GameStop=true;
+  var ganador;
+  if(lifeBlue)
+   ganador= "Gano el jugador azul ¿reiniciar?";
+  else ganador= "Gano el jugador amarillo ¿reiniciar?";
+
+  var eleccion=confirm(ganador);
+
+  if(eleccion)
+    location.reload(this);
+  else window.location="app.html"
+  
+  
+}
+
 
 }
