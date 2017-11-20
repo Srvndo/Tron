@@ -27,9 +27,9 @@ function preload() {
   game.load.image('background', 'static/sprites/tron.jpg');
   //game.load.spritesheet('BikeYellow','assets/BikesYellow.png',32,32)
   //Blue
-  game.load.spritesheet('Blue', 'static/sprites/Blue.png',32,32);
+  game.load.spritesheet('Blue', 'static/sprites/Blue.png',10,10);
   //Yellow
-  game.load.image('yellow', 'static/sprites/Yellow.png');
+  game.load.spritesheet('yellow', 'static/sprites/Yellow.png', 10, 10);
 
   //ground
   game.load.image('Base', 'static/sprites/Base1.png');
@@ -68,14 +68,14 @@ var DeleteStellaTime;
 var takenBoostUp = false;
 var takenBoostUpSlow = false;
 //const
-var vel = 150;
+var vel = 100;
 var jump = 10;
-var velplus = 250;
+var velplus = 150;
 var veldown = 60;
-var InitialYellowBikeX = Math.floor(((col / 2) + 4) * 32);
-var InitialYellowBikeY = Math.floor((row / 2) * 32);
-var InitialBlueBikeX = Math.floor(((col / 2) - 4) * 32);
-var InitialBlueBikeY = Math.floor((row / 2) * 32);
+var InitialYellowBikeX = Math.floor(((col / 2) + 4) * 32)-16;
+var InitialYellowBikeY = Math.floor((row / 2) * 32)-16;
+var InitialBlueBikeX = Math.floor(((col / 2) - 4) * 32)-16;
+var InitialBlueBikeY = Math.floor((row / 2) * 32)-16;
 var BoostTime = 3000;
 
 //FUNCTION CREATE
@@ -163,7 +163,7 @@ function create() {
 
 //UPDATE
 function update() {
-
+  
   //Blue Bike Stellas
   game.physics.arcade.collide(BlueBike, Blue, crashBlue, null, this);
   game.physics.arcade.collide(BlueBike, Yellow, crashBlue, null, this);
@@ -197,6 +197,7 @@ function update() {
     //Controls
     ControlBlueBike();
     ControlYellowBike();
+    updateGrid();
   }
 
 
@@ -276,6 +277,41 @@ function BoostSlowBlue() {
 
 }
 
+function updateGrid(){
+    const yellowX = YellowBike.x / 32
+    const yellowY = YellowBike.y / 32 
+    const blueX = BlueBike.x / 32
+    const blueY = BlueBike.y / 32 
+    const yellowXF = Math.floor(yellowX)
+    const yellowYF = Math.floor(yellowY)
+    const blueXF = Math.floor(blueX)
+    const blueYF = Math.floor(blueY)
+    if (yellowY - yellowYF !== 0 && yellowX - yellowXF !== 0) {
+        matriz[yellowYF][yellowXF]=2;
+        matriz[yellowYF + 1][yellowXF + 1]=2;
+    } else if (yellowY - yellowYF === 0 && yellowX - yellowXF !== 0) {
+        matriz[yellowYF][yellowXF]=2;
+        matriz[yellowYF][yellowXF + 1]=2;
+    } else if (yellowY - yellowYF !== 0 && yellowX - yellowXF === 0) {
+        matriz[yellowYF][yellowXF]=2;
+        matriz[yellowYF + 1][yellowXF]=2;
+    } else {
+        matriz[yellowYF][yellowXF]=2;
+    }
+
+    if (blueY - blueYF !== 0 && blueX - blueXF !== 0) {
+        matriz[blueYF][blueXF]=3;
+        matriz[blueYF + 1][blueXF + 1]=3;
+    } else if (blueY - blueYF === 0 && blueX - blueXF !== 0) {
+        matriz[blueYF][blueXF]=3;
+        matriz[blueYF][blueXF + 1]=3;
+    } else if (blueY - blueYF !== 0 && blueX - blueXF === 0) {
+        matriz[blueYF][blueXF]=3;
+        matriz[blueYF + 1][blueXF]=3;
+    } else {
+        matriz[blueYF][blueXF]=3;
+    }
+}
 
 function DeleteStellaYellow() {
   DeleteStella.callAll('kill');
@@ -312,40 +348,35 @@ function ControlYellowBike() {
   const yellowY = Math.floor(YellowBike.y / 32)
   const blueX = Math.floor(BlueBike.x / 32)
   const blueY = Math.floor(BlueBike.y / 32)
+
   easy.findPath(yellowX, yellowY, blueX, blueY, function (path) {
     if (path === null) {
-      console.log("Path was not found.")
+      //console.log("Path was not found.")
     } else {
-      console.log("Path was found. The first Point is " + path[1].x + " " + path[1].y + " current: X: " + yellowX + " Y: " + yellowY)
+      //console.log("Path was found. The first Point is " + path[1].x + " " + path[1].y + " current: X: " + yellowX + " Y: " + yellowY)
+      if(path[1].y < yellowY && path[1].x == yellowX && YellowBike.body.velocity.y == 0){
+          
+        YellowBike.body.velocity.y = -currentVelYellow;
+        YellowBike.body.velocity.x = 0;
+      } else if(path[1].y > yellowY && path[1].x == yellowX && YellowBike.body.velocity.y == 0){
+        
+        YellowBike.body.velocity.y = currentVelYellow;
+        YellowBike.body.velocity.x = 0;
+      } else if(path[1].y == yellowY && path[1].x < yellowX && YellowBike.body.velocity.x == 0){
+        
+        YellowBike.body.velocity.y = 0;
+        YellowBike.body.velocity.x = -currentVelYellow;
+      }else if(path[1].y == yellowY && path[1].x > yellowX && YellowBike.body.velocity.x == 0){
+       
+        YellowBike.body.velocity.y = 0;
+        YellowBike.body.velocity.x = currentVelYellow;
+      }
+
+
+
     }
   })
   easy.calculate()
-  if (cursors1.down.isDown && YellowBike.body.velocity.y == 0) {
-    YellowBike.body.velocity.y += jump;
-    YellowBike.body.velocity.y = currentVelYellow;
-    YellowBike.body.velocity.x = 0;
-
-  }
-  else if (cursors1.up.isDown && YellowBike.body.velocity.y == 0) {
-
-    YellowBike.body.velocity.y -= jump;
-    YellowBike.body.velocity.y = -currentVelYellow;
-    YellowBike.body.velocity.x = 0;
-  }
-  else if (cursors1.left.isDown && YellowBike.body.velocity.x == 0) {
-    YellowBike.body.velocity.x -= jump;
-    YellowBike.body.velocity.y = 0;
-    YellowBike.body.velocity.x = -currentVelYellow;
-
-  }
-  else if (cursors1.right.isDown && YellowBike.body.velocity.x == 0) {
-    YellowBike.body.velocity.y += jump;
-    YellowBike.body.velocity.y = 0;
-    YellowBike.body.velocity.x = currentVelYellow;
-
-  }
-
-
 }
 
 function ControlBlueBike() {
@@ -400,7 +431,9 @@ function createMatriz() {
         matriz[i][j] = 0;
       }
     }
-
+       matriz[InitialBlueBikeY/32][InitialBlueBikeX/32]=2;
+       matriz[InitialYellowBikeY/32][InitialYellowBikeX/32]=3;
+        //console.log(matriz);
 
 }
 
@@ -492,6 +525,7 @@ function mostrar(valor) {
 
 
 function Restart() {
+    createMatriz();
   KillBlue();
   KillYellow();
   scoreText.text = "Blue = " + lifeBlue + " Yellow= " + lifeYellow;

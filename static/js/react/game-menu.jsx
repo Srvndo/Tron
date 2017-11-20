@@ -51,8 +51,13 @@ class Game extends React.Component {
     return "";*/
     }
 
-    startGame () {
-        window.location = "game.html"
+    startGame (ia) {
+        if (ia) {
+            window.location = "gameia.html"
+        } else {
+            window.location = "game.html"
+        }
+        
     }
 
     startEdithor () {
@@ -77,10 +82,10 @@ class Game extends React.Component {
                 <label style={{fontSize: "50px"}}><strong>Tron</strong></label>
                 <br />
                 <br />
-                <button className="btn btn-primary" onClick={this.startGame}>Start 1v1</button>
+                <button className="btn btn-primary" onClick={() => this.startGame(false)}>Start 1v1</button>
                 <br />
                 <br />
-                <button className="btn btn-primary" onClick={this.startGame}>Start 1vAI</button>
+                <button className="btn btn-primary" onClick={() => this.startGame(true)}>Start 1vAI</button>
                 <br />
                 <br />
                 <button className="btn btn-secondary" onClick={this.startEdithor}>Make Map</button>
