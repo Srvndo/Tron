@@ -25,6 +25,7 @@ var game = new Phaser.Game(col * cuad, row * cuad, Phaser.AUTO, 'game', { preloa
 function preload() {
 
   game.load.image('background', 'static/sprites/tron.jpg');
+  game.load.audio('sfx', 'static/Sounds/Daft.ogg');
   //game.load.spritesheet('BikeYellow','assets/BikesYellow.png',32,32)
   //Blue
   game.load.spritesheet('Blue', 'static/sprites/Blue.png',10,10);
@@ -37,7 +38,7 @@ function preload() {
 
   //Boost
   game.load.image('BoostUp', 'static/sprites/Boost1.png');
-  game.load.image('BoostSlow', 'static/sprites/Boost3.png');
+  game.load.image('BoostSlow', 'static/sprites/boost3.png');
   game.load.image('DeleteStella', 'static/sprites/DeleteStella.png');
   //escore
 
@@ -77,12 +78,14 @@ var InitialYellowBikeY = Math.floor((row / 2) * 32)-16;
 var InitialBlueBikeX = Math.floor(((col / 2) - 4) * 32)-16;
 var InitialBlueBikeY = Math.floor((row / 2) * 32)-16;
 var BoostTime = 3000;
-
+var music;
 //FUNCTION CREATE
 function create() {
   //background
   game.add.sprite(0, 0, 'background');
 
+  music = game.add.audio('sfx');
+  music.play();
   //escore
   lifeBlue = 3;
   lifeYellow = 3;
@@ -525,6 +528,7 @@ function mostrar(valor) {
 
 
 function Restart() {
+  
     createMatriz();
   KillBlue();
   KillYellow();

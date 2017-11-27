@@ -25,19 +25,19 @@ var game = new Phaser.Game(col * cuad, row * cuad, Phaser.AUTO, 'game', { preloa
 function preload() {
 
   game.load.image('background', 'static/sprites/tron.jpg');
+  game.load.audio('sfx', 'static/Sounds/Daft.ogg');
   //game.load.spritesheet('BikeYellow','assets/BikesYellow.png',32,32)
   //Blue
-  game.load.spritesheet('Blue', 'static/sprites/Blue.png',32,32);
+  game.load.spritesheet('Blue', 'static/sprites/Blue.png',10,10);
   //Yellow
-  game.load.image('yellow', 'static/sprites/Yellow.png');
-
+  game.load.spritesheet('yellow', 'static/sprites/Yellow.png', 10, 10);
   //ground
   game.load.image('Base', 'static/sprites/Base1.png');
   game.load.image('BaseMov', 'static/sprites/Block.png');
 
   //Boost
   game.load.image('BoostUp', 'static/sprites/Boost1.png');
-  game.load.image('BoostSlow', 'static/sprites/Boost3.png');
+  game.load.image('BoostSlow', 'static/sprites/boost3.png');
   game.load.image('DeleteStella', 'static/sprites/DeleteStella.png');
   //escore
 
@@ -77,7 +77,7 @@ var InitialYellowBikeY = Math.floor((row / 2) * 32);
 var InitialBlueBikeX = Math.floor(((col / 2) - 4) * 32);
 var InitialBlueBikeY = Math.floor((row / 2) * 32);
 var BoostTime = 3000;
-
+var music;
 //FUNCTION CREATE
 function create() {
   //background
@@ -87,7 +87,8 @@ function create() {
   lifeBlue = 3;
   lifeYellow = 3;
 
-
+   music= game.add.audio('sfx');
+   music.play();
   game.physics.startSystem(Phaser.Physics.ARCADE);
 
   //Yellow Bike
@@ -305,21 +306,8 @@ function StellaYellow() {
 }
 function ControlYellowBike() {
 
-  var easy = new EasyStar.js()
-  easy.setGrid(matriz)
-  easy.setAcceptableTiles([0])
-  const yellowX = Math.floor(YellowBike.x / 32)
-  const yellowY = Math.floor(YellowBike.y / 32)
-  const blueX = Math.floor(BlueBike.x / 32)
-  const blueY = Math.floor(BlueBike.y / 32)
-  easy.findPath(yellowX, yellowY, blueX, blueY, function (path) {
-    if (path === null) {
-      console.log("Path was not found.")
-    } else {
-      console.log("Path was found. The first Point is " + path[1].x + " " + path[1].y + " current: X: " + yellowX + " Y: " + yellowY)
-    }
-  })
-  easy.calculate()
+
+  
   if (cursors1.down.isDown && YellowBike.body.velocity.y == 0) {
     YellowBike.body.velocity.y += jump;
     YellowBike.body.velocity.y = currentVelYellow;
